@@ -8,7 +8,7 @@
 // transposed access, col major storage
 #define M_IDX_T(I,J,NCOLS) ((I) + (J) * (NCOLS))
 
-// more consise
+// more consise, use this instead of M_IDX*
 #define MIDX(M,I,J) ((M)->v[M_IDX((I),(J),(M)->cols)])
 #define MIDXT(M,I,J) ((M)->v[M_IDX_T((I),(J),(M)->cols)])
 
