@@ -1,6 +1,7 @@
 #include <example/mcl.h>
 #include <math.h>
 #include <assert.h>
+#include <stdio.h>
 
 void
 mcl_expand (matf *M, int a) {
