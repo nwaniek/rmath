@@ -11,6 +11,5 @@ usually don't have them.
 
 An example on how to use the functions is provided in form of an
 implementation of the Markov Clustering for Graphs, short MCL. For more
-information about MCL, visit [1][]
+information about MCL, visit [this link](http://micans.org/mcl/).
 
-[1]: http://micans.org/mcl/
