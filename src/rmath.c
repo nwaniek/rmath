@@ -257,3 +257,17 @@ matf_dump_transposed (matf *A) {
 		printf("\n");
 	}
 }
+
+float
+_randf () {
+	return 10 * (float)rand() / (float)RAND_MAX;
+}
+
+matf*
+matf_rand (size_t rows, size_t cols) {
+	matf *C = matf_new(rows, cols);
+	for (size_t i = 0; i < rows * cols; i++)
+		C->v[i] = _randf();
+	return C;
+}
+
