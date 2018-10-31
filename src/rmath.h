@@ -1,6 +1,4 @@
-#ifndef __RMATH_H__98A0D7C0_EA52_47BA_9965_0AA09D420C37
-#define __RMATH_H__98A0D7C0_EA52_47BA_9965_0AA09D420C37
-
+#pragma once
 #include <stdlib.h>
 
 // regular access, col major storage
@@ -56,6 +54,3 @@ void matf_dump (matf *A);
 void matf_dump_transposed (matf *A);
 
 matf* matf_rand (size_t rows, size_t cols);
-
-#endif /* __RMATH_H__98A0D7C0_EA52_47BA_9965_0AA09D420C37 */
-
