@@ -8,8 +8,7 @@
 
 #include <example/mcl.h>
 
-
-int
-main () {
+int main() {
 	mcl_demo();
+	return 0;
 }

@@ -4,7 +4,8 @@
 #include <stdio.h>
 
 void
-mcl_expand (matf *M, int a) {
+mcl_expand(matf *M, int a)
+{
 	assert(M != NULL);
 
 	matf *temp = matf_cpy(M);
@@ -18,7 +19,8 @@ mcl_expand (matf *M, int a) {
 }
 
 void
-mcl_inflate (matf *M, float a) {
+mcl_inflate(matf *M, float a)
+{
 	assert(M != NULL);
 	assert(a > 1.0f);
 
@@ -34,7 +36,8 @@ mcl_inflate (matf *M, float a) {
 }
 
 void
-mcl_add_loops (matf *M) {
+mcl_add_loops(matf *M)
+{
 	assert(M != NULL);
 	assert(M->cols == M->rows);
 
@@ -43,7 +46,8 @@ mcl_add_loops (matf *M) {
 }
 
 void
-mcl_remove_loops (matf *M) {
+mcl_remove_loops(matf *M)
+{
 	assert(M != NULL);
 	assert(M->cols == M->rows);
 
@@ -53,7 +57,8 @@ mcl_remove_loops (matf *M) {
 
 
 void
-mcl_demo () {
+mcl_demo()
+{
 	matf *A = matf_new(5, 5);
 
 	// setup / prepare
