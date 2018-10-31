@@ -6,7 +6,7 @@
 #include <assert.h>
 
 matf*
-matf_new(size_t rows, size_t cols)
+matf_new(const size_t rows, const size_t cols)
 {
 	matf *C = malloc(sizeof(matf));
 	C->rows = rows;
@@ -24,7 +24,7 @@ matf_cpy(matf *M)
 }
 
 void
-matf_cpyi(matf *Dst, matf *Src)
+matf_cpyi(matf *Dst, const matf *Src)
 {
 	assert(Dst != NULL && Src != NULL);
 	assert(Dst->rows == Src->rows && Dst->cols == Src->cols);
@@ -40,14 +40,13 @@ matf_new_val(size_t rows, size_t cols, float v)
 }
 
 matf*
-matf_eye(size_t rows)
+matf_eye(const size_t rows)
 {
 	matf *C = matf_new(rows, rows);
 	for (size_t i = 0; i < rows; i++)
 		C->v[M_IDX(i,i,rows)] = 1;
 	return C;
 }
-
 
 void
 matf_norm_r1(matf *M, size_t r)
@@ -88,7 +87,7 @@ matf_norm_c(matf *M)
 }
 
 void
-matf_set(matf *A, float v)
+matf_set(matf *A, const float v)
 {
 	assert(A != NULL);
 	for (size_t i = 0; i < A->rows * A->cols; i++)
@@ -123,6 +122,14 @@ matf_apply(matf *A, float (*fp)(float))
 }
 
 void
+matf_applyd(matf *Dst, const matf *A, float (*fp)(float))
+{
+	assert(Dst != NULL && A != NULL && fp != NULL);
+	for (size_t i = 0; i < A->rows * A->cols; i++)
+		Dst->v[i] = fp(A->v[i]);
+}
+
+void
 matf_applyi(matf *A, float (*fp)(float))
 {
 	assert(A != NULL && fp != NULL);
@@ -130,8 +137,9 @@ matf_applyi(matf *A, float (*fp)(float))
 		A->v[i] = fp(A->v[i]);
 }
 
+
 matf*
-matf_add(matf *A, matf *B)
+matf_add(const matf *A, const matf *B)
 {
 	assert(A->cols == B->cols && A->rows == B->rows);
 	matf *C = matf_new(A->rows, B->rows);
@@ -141,7 +149,7 @@ matf_add(matf *A, matf *B)
 }
 
 void
-matf_addi(matf *A, matf *B)
+matf_addi(matf *A, const matf *B)
 {
 	assert(A->cols == B->cols && A->rows == B->rows);
 	for (size_t i = 0; i < A->rows * A->cols; i++)
@@ -149,7 +157,7 @@ matf_addi(matf *A, matf *B)
 }
 
 matf*
-matf_sub(matf *A, matf *B)
+matf_sub(const matf *A, const matf *B)
 {
 	assert(A->cols == B->cols && A->rows == B->rows);
 	matf *C = matf_new(A->rows, B->rows);
@@ -159,7 +167,7 @@ matf_sub(matf *A, matf *B)
 }
 
 void
-matf_subi(matf *A, matf *B)
+matf_subi(matf *A, const matf *B)
 {
 	assert(A->cols == B->cols && A->rows == B->rows);
 	for (size_t i = 0; i < A->rows * A->cols; i++)
@@ -167,32 +175,55 @@ matf_subi(matf *A, matf *B)
 }
 
 matf*
-matf_mul(matf *A, matf *B)
+matf_mul(const matf *A, const matf *B)
 {
 	assert(A != NULL && B != NULL);
 	assert(A->cols == B->rows);
 
 	matf *C = matf_new(A->rows, B->cols);
-	for (size_t r = 0; r < C->rows; r++) {
-		for (size_t c = 0; c < C->cols; c++) {
-			MIDX(C, r, c) =
-				dotp(&A->v[r * A->cols], 1,
-				     &B->v[c], B->cols,
-				     B->rows);
-		}
-	}
+	matf_muld(C, A, B);
 	return C;
 }
 
+void
+matf_muld(matf *Dst, const matf *A, const matf *B)
+{
+	assert(Dst != NULL);
+	assert(A != NULL);
+	assert(B != NULL);
+
+	for (size_t r = 0; r < Dst->rows; r++) {
+		for (size_t c = 0; c < Dst->cols; c++) {
+			MIDX(Dst, r, c) =
+				dotp(&A->v[r * A->cols], 1,
+					 &B->v[c], B->cols,
+					 B->rows);
+		}
+	}
+}
+
+void
+matf_muli(matf *A, const matf *B)
+{
+	// TODO: implement smarter version
+	matf* C = matf_mul(A, B);
+	for (size_t r = 0; r < A->rows; r++) {
+		for (size_t c = 0; c < A->cols; c++) {
+			MIDX(A, r, c) = MIDX(C, r, c);
+		}
+	}
+	matf_free(C);
+}
+
 inline static float
-matf_transposed_v(matf *M, size_t r, size_t c)
+matf_transposed_v(const matf *M, size_t r, size_t c)
 {
 	assert(M != NULL);
 	return M->v[M_IDX_T(r, c, M->cols)];
 }
 
 matf*
-matf_transpose(matf *A)
+matf_transpose(const matf *A)
 {
 	assert(A != NULL);
 	matf *B = matf_new(A->cols, A->rows);
@@ -203,9 +234,13 @@ matf_transpose(matf *A)
 }
 
 matf*
-matf_mul_elems(matf *A, matf *B)
+matf_mul_elems(const matf *A, const matf *B)
 {
-	assert(A != NULL && B != NULL && A->rows == B->rows && A->cols == B->cols);
+	assert(A != NULL);
+	assert(B != NULL);
+	assert(A->rows == B->rows);
+	assert(A->cols == B->cols);
+
 	matf *C = matf_new(A->rows, A->cols);
 	for (size_t i = 0; i < A->rows * A->cols; i++)
 		C->v[i] = A->v[i] * B->v[i];
@@ -213,7 +248,7 @@ matf_mul_elems(matf *A, matf *B)
 }
 
 void
-matf_mul_elemsi(matf *A, matf *B)
+matf_mul_elemsi(matf *A, const matf *B)
 {
 	assert(A->rows == B->rows && A->cols == B->cols);
 	for (size_t i = 0; i < A->rows * A->cols; i++)
@@ -221,7 +256,7 @@ matf_mul_elemsi(matf *A, matf *B)
 }
 
 matf*
-matf_mul_scalar(matf *A, float s)
+matf_mul_scalar(const matf *A, const float s)
 {
 	assert(A != NULL);
 	matf *C = matf_new(A->rows, A->cols);
@@ -231,7 +266,7 @@ matf_mul_scalar(matf *A, float s)
 }
 
 void
-matf_mul_scalari(matf *A, float s)
+matf_mul_scalari(matf *A, const float s)
 {
 	assert(A != NULL);
 	for (size_t i = 0; i < A->rows * A->cols; i++)
@@ -239,7 +274,7 @@ matf_mul_scalari(matf *A, float s)
 }
 
 matf*
-matf_diag(matf *A)
+matf_diag(const matf *A)
 {
 	assert(A != NULL && A->cols == A->rows);
 	matf *C = matf_new(A->rows, 1);
